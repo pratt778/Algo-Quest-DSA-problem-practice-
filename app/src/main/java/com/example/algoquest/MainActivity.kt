@@ -3,16 +3,13 @@ package com.example.algoquest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.algoquest.adapter.ProblemAdapter
+import com.example.algoquest.utils.ProblemUtils
 import com.example.algoquest.utils.UserProgress
 import com.example.algoquest.viewmodel.MainViewModel
 
@@ -30,7 +27,6 @@ class MainActivity : ComponentActivity() {
         progressText.text = "Your Points: ${UserProgress.currentPoints}"
 
         val adapter = ProblemAdapter { problem ->
-            // Open detail activity
             val intent = Intent(this, DetailActivity::class.java)
             intent.putExtra("problem", problem)
             startActivity(intent)
@@ -39,7 +35,9 @@ class MainActivity : ComponentActivity() {
         recyclerView.adapter = adapter
 
         viewModel.problems.observe(this) { problems ->
-            adapter.updateData(problems)
+            val sortedProblems = ProblemUtils.sortProblemsTopologically(problems)
+            val unlockedProblems = ProblemUtils.getUnlockedProblems(sortedProblems)
+            adapter.updateData(unlockedProblems) // ✅ Only show unlocked problems
         }
 
         viewModel.loadProblems()

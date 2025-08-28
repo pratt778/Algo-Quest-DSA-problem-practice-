@@ -47,6 +47,9 @@ class DetailActivity : ComponentActivity() {
                 val result = jsExecutor.execute(userCode).trim()
                 if (result == problem.answer.trim()) {
                     outputText.text = "✅ Correct! Output: $result"
+                    runButton.isEnabled = false
+                    codeInput.isEnabled = false
+
                     UserProgress.addPoints(problem.points)
                     progressText.text = "Your Points: ${UserProgress.currentPoints}"
                 } else {
@@ -55,9 +58,17 @@ class DetailActivity : ComponentActivity() {
             }
         }
     }
+    override fun onResume() {
+        super.onResume()
+        val progressText = findViewById<TextView>(R.id.progressText)
+        progressText.text = "Your Points: ${UserProgress.currentPoints}"
+    }
+
 
     override fun onDestroy() {
         super.onDestroy()
         jsExecutor.close()
     }
+
+
 }
