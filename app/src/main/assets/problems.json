@@ -1,0 +1,167 @@
+[
+  {
+    "id": "p001",
+    "title": "Two Sum",
+    "description": "Given nums = [2, 7, 11, 15], target = 9, return indices of the two numbers that add up to target.",
+    "category": "easy",
+    "points": 3,
+    "prerequisites": [],
+    "tags": ["array", "hashmap"],
+    "hints": ["use hashmap to store visited numbers"],
+    "answer": "[0, 1]"
+  },
+  {
+    "id": "p002",
+    "title": "Reverse Linked List",
+    "description": "Given linked list 1 -> 2 -> 3 -> 4 -> 5 -> NULL, return it reversed as 5 -> 4 -> 3 -> 2 -> 1 -> NULL.",
+    "category": "easy",
+    "points": 4,
+    "prerequisites": [],
+    "tags": ["linkedlist"],
+    "hints": ["iterative or recursive approach"],
+    "answer": "5 -> 4 -> 3 -> 2 -> 1 -> NULL"
+  },
+  {
+    "id": "p003",
+    "title": "Valid Parentheses",
+    "description": "Given s = '()[]{}', determine if it is valid. A valid string must have matching opening and closing brackets in correct order.",
+    "category": "easy",
+    "points": 2,
+    "prerequisites": [],
+    "tags": ["stack", "string"],
+    "hints": ["use a stack to match opening and closing brackets"],
+    "answer": "true"
+  },
+  {
+    "id": "p004",
+    "title": "Maximum Subarray",
+    "description": "Given nums = [-2,1,-3,4,-1,2,1,-5,4], return the sum of the contiguous subarray with the largest sum.",
+    "category": "easy",
+    "points": 5,
+    "prerequisites": ["p001"],
+    "tags": ["array", "dynamic programming"],
+    "hints": ["Kadane’s algorithm"],
+    "answer": "6"
+  },
+  {
+    "id": "p005",
+    "title": "Merge Two Sorted Lists",
+    "description": "Given lists l1 = [1,2,4], l2 = [1,3,4], merge them into one sorted list.",
+    "category": "easy",
+    "points": 3,
+    "prerequisites": ["p002"],
+    "tags": ["linkedlist"],
+    "hints": ["use two pointers"],
+    "answer": "[1,1,2,3,4,4]"
+  },
+  {
+    "id": "p006",
+    "title": "Course Schedule",
+    "description": "There are numCourses = 2, and prerequisites = [[1,0]]. Can you finish all courses?",
+    "category": "medium",
+    "points": 10,
+    "prerequisites": ["p001", "p003"],
+    "tags": ["graph", "topological sort"],
+    "hints": ["detect cycle in directed graph", "use DFS or BFS"],
+    "answer": "true"
+  },
+  {
+    "id": "p007",
+    "title": "Longest Increasing Subsequence",
+    "description": "Given nums = [10,9,2,5,3,7,101,18], return length of longest increasing subsequence.",
+    "category": "medium",
+    "points": 9,
+    "prerequisites": ["p004"],
+    "tags": ["dynamic programming"],
+    "hints": ["use DP array", "compare each element with previous elements"],
+    "answer": "4"
+  },
+  {
+    "id": "p008",
+    "title": "Top K Frequent Elements",
+    "description": "Given nums = [1,1,1,2,2,3], k = 2, return the k most frequent elements.",
+    "category": "medium",
+    "points": 8,
+    "prerequisites": ["p001"],
+    "tags": ["heap", "hashmap"],
+    "hints": ["use hashmap and priority queue"],
+    "answer": "[1,2]"
+  },
+  {
+    "id": "p009",
+    "title": "Number of Islands",
+    "description": "Given grid = [[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"0\",\"0\",\"1\",\"0\",\"0\"],[\"0\",\"0\",\"0\",\"1\",\"1\"]], return number of islands.",
+    "category": "medium",
+    "points": 11,
+    "prerequisites": ["p006"],
+    "tags": ["graph", "dfs", "bfs"],
+    "hints": ["use DFS or BFS to traverse each island"],
+    "answer": "3"
+  },
+  {
+    "id": "p010",
+    "title": "Clone Graph",
+    "description": "Given an undirected graph with node 1 connected to 2 and 4, return the deep copy of the graph.",
+    "category": "medium",
+    "points": 12,
+    "prerequisites": ["p006"],
+    "tags": ["graph", "dfs", "bfs"],
+    "hints": ["use hashmap to map original to cloned nodes"],
+    "answer": "Graph with same structure"
+  },
+  {
+    "id": "p011",
+    "title": "Word Ladder",
+    "description": "Given beginWord = \"hit\", endWord = \"cog\", and wordList = [\"hot\",\"dot\",\"dog\",\"lot\",\"log\",\"cog\"], return the length of shortest transformation sequence.",
+    "category": "hard",
+    "points": 20,
+    "prerequisites": ["p010"],
+    "tags": ["graph", "bfs"],
+    "hints": ["use BFS", "transform word by changing one letter"],
+    "answer": "5"
+  },
+  {
+    "id": "p012",
+    "title": "N-Queens",
+    "description": "Place N queens on a chessboard so that no two queens attack each other. For N = 4, how many distinct solutions exist?",
+    "category": "hard",
+    "points": 25,
+    "prerequisites": ["p010"],
+    "tags": ["backtracking"],
+    "hints": ["use recursion", "check rows, columns, diagonals"],
+    "answer": "2"
+  },
+  {
+    "id": "p013",
+    "title": "Trapping Rain Water",
+    "description": "Given height = [0,1,0,2,1,0,1,3,2,1,2,1], return amount of water trapped.",
+    "category": "hard",
+    "points": 22,
+    "prerequisites": ["p004"],
+    "tags": ["array", "two pointers"],
+    "hints": ["use two pointer technique", "calculate water above each bar"],
+    "answer": "6"
+  },
+  {
+    "id": "p014",
+    "title": "Longest Valid Parentheses",
+    "description": "Given s = \"(()\", find length of longest valid parentheses substring.",
+    "category": "hard",
+    "points": 21,
+    "prerequisites": ["p003"],
+    "tags": ["stack", "dynamic programming"],
+    "hints": ["use stack or DP approach"],
+    "answer": "2"
+  },
+  {
+    "id": "p015",
+    "title": "Median of Two Sorted Arrays",
+    "description": "Given nums1 = [1,3], nums2 = [2], find the median of the two sorted arrays.",
+    "category": "hard",
+    "points": 24,
+    "prerequisites": ["p004", "p008"],
+    "tags": ["array", "binary search"],
+    "hints": ["use binary search on smaller array"],
+    "answer": "2.0"
+  }
+]

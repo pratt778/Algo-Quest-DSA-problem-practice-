@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "418910417631",
+    "project_id": "algo-quest",
+    "storage_bucket": "algo-quest.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:418910417631:android:99457ba25c9520f2a4af6a",
+        "android_client_info": {
+          "package_name": "com.example.algoquest"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "418910417631-77f2efc8bghsh2p3lp1m9tj5ss9vfmd0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCjsPVKkWyd61YH6yXVMA1zwQr7rLTfkcA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "418910417631-77f2efc8bghsh2p3lp1m9tj5ss9vfmd0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

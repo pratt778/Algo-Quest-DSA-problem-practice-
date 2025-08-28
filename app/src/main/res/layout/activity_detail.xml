@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout android:orientation="vertical"
+        android:layout_width="match_parent" android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/progressText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Points: 0"
+            android:textSize="18sp"
+            android:layout_margin="16dp" />
+
+        <TextView android:id="@+id/titleText"
+            android:textSize="22sp" android:textStyle="bold"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+
+        <TextView android:id="@+id/descriptionText"
+            android:layout_marginTop="8dp"
+            android:textSize="16sp"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+
+        <TextView android:id="@+id/categoryText" android:layout_marginTop="8dp" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+        <TextView android:id="@+id/pointsText" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+        <TextView android:id="@+id/tagsText" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+        <TextView android:id="@+id/hintsText" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+
+
+            <EditText
+                android:id="@+id/codeInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Enter JavaScript code here"
+                android:inputType="textMultiLine"
+                android:minLines="5"
+                android:gravity="top" />
+
+            <Button
+                android:id="@+id/runButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Run Code"
+                android:layout_marginTop="16dp" />
+
+            <TextView
+                android:id="@+id/outputText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Output will appear here" />
+
+
+    </LinearLayout>
+</ScrollView>
