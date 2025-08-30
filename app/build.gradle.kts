@@ -42,7 +42,10 @@ android {
 }
 
 dependencies {
-    implementation(platform("com.google.firebase:firebase-bom:34.1.0"))
+    implementation(platform("com.google.firebase:firebase-bom:34.2.0"))
+//    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-auth")
 
     implementation("app.cash.quickjs:quickjs-android:0.9.2")
 
@@ -56,7 +59,9 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("androidx.compose.material3:material3:1.3.0")
     implementation("com.google.code.gson:gson:2.10.1")
-    implementation(libs.androidx.recyclerview) // Add this line
+    implementation(libs.androidx.recyclerview)
+    implementation(libs.androidx.media3.common.ktx)
+//    implementation(libs.firebase.common.ktx) // Add this line
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

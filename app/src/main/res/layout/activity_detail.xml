@@ -12,7 +12,8 @@
             android:layout_height="wrap_content"
             android:text="Points: 0"
             android:textSize="18sp"
-            android:layout_margin="16dp" />
+            android:layout_margin="16dp"
+            />
 
         <TextView android:id="@+id/titleText"
             android:textSize="22sp" android:textStyle="bold"
