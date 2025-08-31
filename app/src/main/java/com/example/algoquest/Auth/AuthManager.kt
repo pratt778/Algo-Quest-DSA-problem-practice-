@@ -23,31 +23,36 @@ object AuthManager {
     }
 
 
-        fun signUp(email: String, password: String, callback: (Boolean, String?) -> Unit) {
-            FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        val userId = task.result?.user?.uid
-                        if (userId != null) {
-                            // Create user document in Firestore
-                            val userData = hashMapOf("points" to 0L)
-                            FirebaseFirestore.getInstance().collection("users")
-                                .document(userId)
-                                .set(userData)
-                                .addOnSuccessListener {
-                                    callback(true, null)
-                                }
-                                .addOnFailureListener { e ->
-                                    callback(false, e.message)
-                                }
-                        } else {
-                            callback(false, "User ID is null")
-                        }
+    fun signUp(email: String, password: String, callback: (Boolean, String?) -> Unit) {
+        FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val userId = task.result?.user?.uid
+                    if (userId != null) {
+                        // Create user document in Firestore
+                        val userData = hashMapOf(
+                            "points" to 0L,
+                            "solvedProblems" to emptyList<String>()
+                        )
+                        FirebaseFirestore.getInstance().collection("users")
+                            .document(userId)
+                            .set(userData)
+                            .addOnSuccessListener {
+                                callback(true, null) // Only call success after Firestore write
+                            }
+                            .addOnFailureListener { e ->
+                                // Delete the Firebase Auth user if Firestore write fails
+                                FirebaseAuth.getInstance().currentUser?.delete()
+                                callback(false, "Failed to create user data: ${e.message}")
+                            }
                     } else {
-                        callback(false, task.exception?.message)
+                        callback(false, "User ID is null")
                     }
+                } else {
+                    callback(false, task.exception?.message)
                 }
-        }
+            }
+    }
 
 
     fun signOut() {

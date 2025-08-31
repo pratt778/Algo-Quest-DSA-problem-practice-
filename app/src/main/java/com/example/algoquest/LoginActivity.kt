@@ -22,7 +22,7 @@ class LoginActivity : ComponentActivity() {
 
         // Check if user is already logged in
         if (AuthManager.currentUser() != null) {
-            navigateToDetailActivity()
+            navigateToMainActivity()
             return
         }
 
@@ -45,7 +45,7 @@ class LoginActivity : ComponentActivity() {
             AuthManager.signIn(email, password) { success, errorMessage ->
                 if (success) {
                     Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
-                    navigateToDetailActivity()
+                    navigateToMainActivity()
                 } else {
                     Toast.makeText(this, "Login failed: $errorMessage", Toast.LENGTH_LONG).show()
                 }
@@ -58,8 +58,8 @@ class LoginActivity : ComponentActivity() {
         }
     }
 
-    private fun navigateToDetailActivity() {
-        val intent = Intent(this, DetailActivity::class.java)
+    private fun navigateToMainActivity() {
+        val intent = Intent(this, MainActivity::class.java)
         // Pass any problem data if needed, e.g., intent.putExtra("problem", problem)
         startActivity(intent)
         finish()

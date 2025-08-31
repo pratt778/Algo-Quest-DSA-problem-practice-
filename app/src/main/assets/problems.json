@@ -7,8 +7,8 @@
     "points": 3,
     "prerequisites": [],
     "tags": ["array", "hashmap"],
-    "hints": ["use hashmap to store visited numbers"],
-    "answer": "[0, 1]"
+    "hints": ["Use hashmap to store visited numbers"],
+    "answer": "[0,1]"
   },
   {
     "id": "p002",
@@ -18,7 +18,7 @@
     "points": 4,
     "prerequisites": [],
     "tags": ["linkedlist"],
-    "hints": ["iterative or recursive approach"],
+    "hints": ["Iterative or recursive approach"],
     "answer": "5 -> 4 -> 3 -> 2 -> 1 -> NULL"
   },
   {
@@ -29,7 +29,7 @@
     "points": 2,
     "prerequisites": [],
     "tags": ["stack", "string"],
-    "hints": ["use a stack to match opening and closing brackets"],
+    "hints": ["Use a stack to match opening and closing brackets"],
     "answer": "true"
   },
   {
@@ -51,7 +51,7 @@
     "points": 3,
     "prerequisites": ["p002"],
     "tags": ["linkedlist"],
-    "hints": ["use two pointers"],
+    "hints": ["Use two pointers"],
     "answer": "[1,1,2,3,4,4]"
   },
   {
@@ -62,7 +62,7 @@
     "points": 10,
     "prerequisites": ["p001", "p003"],
     "tags": ["graph", "topological sort"],
-    "hints": ["detect cycle in directed graph", "use DFS or BFS"],
+    "hints": ["Detect cycle in directed graph", "Use DFS or BFS"],
     "answer": "true"
   },
   {
@@ -73,7 +73,7 @@
     "points": 9,
     "prerequisites": ["p004"],
     "tags": ["dynamic programming"],
-    "hints": ["use DP array", "compare each element with previous elements"],
+    "hints": ["Use DP array", "Compare each element with previous elements"],
     "answer": "4"
   },
   {
@@ -84,18 +84,18 @@
     "points": 8,
     "prerequisites": ["p001"],
     "tags": ["heap", "hashmap"],
-    "hints": ["use hashmap and priority queue"],
+    "hints": ["Use hashmap and priority queue"],
     "answer": "[1,2]"
   },
   {
     "id": "p009",
     "title": "Number of Islands",
-    "description": "Given grid = [[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"0\",\"0\",\"1\",\"0\",\"0\"],[\"0\",\"0\",\"0\",\"1\",\"1\"]], return number of islands.",
+    "description": "Given grid = [['1','1','0','0','0'],['1','1','0','0','0'],['0','0','1','0','0'],['0','0','0','1','1']], return number of islands.",
     "category": "medium",
     "points": 11,
     "prerequisites": ["p006"],
     "tags": ["graph", "dfs", "bfs"],
-    "hints": ["use DFS or BFS to traverse each island"],
+    "hints": ["Use DFS or BFS to traverse each island"],
     "answer": "3"
   },
   {
@@ -106,18 +106,18 @@
     "points": 12,
     "prerequisites": ["p006"],
     "tags": ["graph", "dfs", "bfs"],
-    "hints": ["use hashmap to map original to cloned nodes"],
+    "hints": ["Use hashmap to map original to cloned nodes"],
     "answer": "Graph with same structure"
   },
   {
     "id": "p011",
     "title": "Word Ladder",
-    "description": "Given beginWord = \"hit\", endWord = \"cog\", and wordList = [\"hot\",\"dot\",\"dog\",\"lot\",\"log\",\"cog\"], return the length of shortest transformation sequence.",
+    "description": "Given beginWord = 'hit', endWord = 'cog', and wordList = ['hot','dot','dog','lot','log','cog'], return the length of shortest transformation sequence.",
     "category": "hard",
     "points": 20,
     "prerequisites": ["p010"],
     "tags": ["graph", "bfs"],
-    "hints": ["use BFS", "transform word by changing one letter"],
+    "hints": ["Use BFS", "Transform word by changing one letter"],
     "answer": "5"
   },
   {
@@ -128,7 +128,7 @@
     "points": 25,
     "prerequisites": ["p010"],
     "tags": ["backtracking"],
-    "hints": ["use recursion", "check rows, columns, diagonals"],
+    "hints": ["Use recursion", "Check rows, columns, diagonals"],
     "answer": "2"
   },
   {
@@ -139,18 +139,18 @@
     "points": 22,
     "prerequisites": ["p004"],
     "tags": ["array", "two pointers"],
-    "hints": ["use two pointer technique", "calculate water above each bar"],
+    "hints": ["Use two pointer technique", "Calculate water above each bar"],
     "answer": "6"
   },
   {
     "id": "p014",
     "title": "Longest Valid Parentheses",
-    "description": "Given s = \"(()\", find length of longest valid parentheses substring.",
+    "description": "Given s = '(()', find length of longest valid parentheses substring.",
     "category": "hard",
     "points": 21,
     "prerequisites": ["p003"],
     "tags": ["stack", "dynamic programming"],
-    "hints": ["use stack or DP approach"],
+    "hints": ["Use stack or DP approach"],
     "answer": "2"
   },
   {
@@ -161,7 +161,392 @@
     "points": 24,
     "prerequisites": ["p004", "p008"],
     "tags": ["array", "binary search"],
-    "hints": ["use binary search on smaller array"],
+    "hints": ["Use binary search on smaller array"],
     "answer": "2.0"
+  },
+  {
+    "id": "p016",
+    "title": "Palindrome Number",
+    "description": "Given x = 121, determine if it is a palindrome.",
+    "category": "easy",
+    "points": 2,
+    "prerequisites": [],
+    "tags": ["math", "string"],
+    "hints": ["Reverse the number and compare"],
+    "answer": "true"
+  },
+  {
+    "id": "p017",
+    "title": "Merge Sorted Array",
+    "description": "Given nums1 = [1,3,5,0,0,0], nums2 = [2,4,6], m = 3, n = 3, merge nums2 into nums1 as one sorted array.",
+    "category": "easy",
+    "points": 3,
+    "prerequisites": [],
+    "tags": ["array", "two pointers"],
+    "hints": ["Start from the end of both arrays"],
+    "answer": "[1,2,3,4,5,6]"
+  },
+  {
+    "id": "p018",
+    "title": "Climbing Stairs",
+    "description": "Given n = 3, find the number of distinct ways to climb to the top by taking 1 or 2 steps.",
+    "category": "easy",
+    "points": 3,
+    "prerequisites": [],
+    "tags": ["dynamic programming"],
+    "hints": ["Use Fibonacci-like approach"],
+    "answer": "3"
+  },
+  {
+    "id": "p019",
+    "title": "Best Time to Buy and Sell Stock",
+    "description": "Given prices = [7,1,5,3,6,4], find the maximum profit by buying and selling once.",
+    "category": "easy",
+    "points": 4,
+    "prerequisites": [],
+    "tags": ["array"],
+    "hints": ["Track minimum price seen so far"],
+    "answer": "5"
+  },
+  {
+    "id": "p020",
+    "title": "Group Anagrams",
+    "description": "Given strs = ['eat','tea','tan','ate','nat','bat'], group all anagrams together.",
+    "category": "medium",
+    "points": 8,
+    "prerequisites": ["p001"],
+    "tags": ["hashmap", "string"],
+    "hints": ["Sort characters of each string as key"],
+    "answer": "[['eat','tea','ate'],['tan','nat'],['bat']]"
+  },
+  {
+    "id": "p021",
+    "title": "Container With Most Water",
+    "description": "Given height = [1,8,6,2,5,4,8,3,7], find the maximum area of water trapped between two lines.",
+    "category": "medium",
+    "points": 9,
+    "prerequisites": ["p001"],
+    "tags": ["array", "two pointers"],
+    "hints": ["Use two pointers from ends"],
+    "answer": "49"
+  },
+  {
+    "id": "p022",
+    "title": "Longest Palindromic Substring",
+    "description": "Given s = 'babad', find the longest palindromic substring.",
+    "category": "medium",
+    "points": 10,
+    "prerequisites": ["p016"],
+    "tags": ["string", "dynamic programming"],
+    "hints": ["Expand around center"],
+    "answer": "bab"
+  },
+  {
+    "id": "p023",
+    "title": "LRU Cache",
+    "description": "Design an LRU cache with capacity = 2, supporting get and put in O(1).",
+    "category": "hard",
+    "points": 25,
+    "prerequisites": ["p001"],
+    "tags": ["hashmap", "linkedlist", "design"],
+    "hints": ["Use doubly linked list and hashmap"],
+    "answer": "Custom LRU Cache implementation"
+  },
+  {
+    "id": "p024",
+    "title": "Kth Smallest Element in a BST",
+    "description": "Given a BST with values [3,1,4,null,2], k = 1, find the kth smallest element.",
+    "category": "medium",
+    "points": 10,
+    "prerequisites": [],
+    "tags": ["tree", "dfs"],
+    "hints": ["Use inorder traversal"],
+    "answer": "1"
+  },
+  {
+    "id": "p025",
+    "title": "Spiral Matrix",
+    "description": "Given matrix = [[1,2,3],[4,5,6],[7,8,9]], return elements in spiral order.",
+    "category": "medium",
+    "points": 9,
+    "prerequisites": ["p001"],
+    "tags": ["matrix"],
+    "hints": ["Track boundaries and direction"],
+    "answer": "[1,2,3,6,9,8,7,4,5]"
+  },
+  {
+    "id": "p026",
+    "title": "Coin Change",
+    "description": "Given coins = [1,2,5], amount = 11, find minimum number of coins needed.",
+    "category": "medium",
+    "points": 10,
+    "prerequisites": [],
+    "tags": ["dynamic programming"],
+    "hints": ["Use DP to build minimum coins"],
+    "answer": "3"
+  },
+  {
+    "id": "p027",
+    "title": "Permutations",
+    "description": "Given nums = [1,2,3], return all possible unique permutations.",
+    "category": "medium",
+    "points": 11,
+    "prerequisites": [],
+    "tags": ["backtracking"],
+    "hints": ["Use recursion to swap elements"],
+    "answer": "[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]"
+  },
+  {
+    "id": "p028",
+    "title": "Word Break",
+    "description": "Given s = 'leetcode', wordDict = ['leet','code'], check if s can be segmented.",
+    "category": "medium",
+    "points": 12,
+    "prerequisites": [],
+    "tags": ["dynamic programming"],
+    "hints": ["Use DP for valid substrings"],
+    "answer": "true"
+  },
+  {
+    "id": "p029",
+    "title": "House Robber",
+    "description": "Given nums = [2,7,9,3,1], maximize amount without robbing adjacent houses.",
+    "category": "medium",
+    "points": 10,
+    "prerequisites": ["p004"],
+    "tags": ["dynamic programming"],
+    "hints": ["Use DP to track max amount"],
+    "answer": "12"
+  },
+  {
+    "id": "p030",
+    "title": "Binary Tree Inorder Traversal",
+    "description": "Given a binary tree with values [1,null,2,3], return inorder traversal.",
+    "category": "easy",
+    "points": 4,
+    "prerequisites": [],
+    "tags": ["tree", "dfs"],
+    "hints": ["Use recursion or stack"],
+    "answer": "[1,3,2]"
+  },
+  {
+    "id": "p031",
+    "title": "Binary Tree Level Order Traversal",
+    "description": "Given a binary tree with values [3,9,20,null,null,15,7], return level order traversal.",
+    "category": "medium",
+    "points": 9,
+    "prerequisites": ["p030"],
+    "tags": ["tree", "bfs"],
+    "hints": ["Use queue for BFS"],
+    "answer": "[[3],[9,20],[15,7]]"
+  },
+  {
+    "id": "p032",
+    "title": "Validate Binary Search Tree",
+    "description": "Given a binary tree with values [2,1,3], check if it is a valid BST.",
+    "category": "medium",
+    "points": 9,
+    "prerequisites": ["p030"],
+    "tags": ["tree", "dfs"],
+    "hints": ["Check bounds for each node"],
+    "answer": "true"
+  },
+  {
+    "id": "p033",
+    "title": "Maximum Depth of Binary Tree",
+    "description": "Given a binary tree with values [3,9,20,null,null,15,7], find its maximum depth.",
+    "category": "easy",
+    "points": 3,
+    "prerequisites": ["p030"],
+    "tags": ["tree", "dfs"],
+    "hints": ["Use recursion for depth"],
+    "answer": "3"
+  },
+  {
+    "id": "p034",
+    "title": "Kth Largest Element in an Array",
+    "description": "Given nums = [3,2,1,5,6,4], k = 2, find the kth largest element.",
+    "category": "medium",
+    "points": 10,
+    "prerequisites": ["p008"],
+    "tags": ["heap", "quickselect"],
+    "hints": ["Use min-heap or quickselect"],
+    "answer": "5"
+  },
+  {
+    "id": "p035",
+    "title": "Merge Intervals",
+    "description": "Given intervals = [[1,3],[2,6],[8,10],[15,18]], merge overlapping intervals.",
+    "category": "medium",
+    "points": 10,
+    "prerequisites": ["p001"],
+    "tags": ["array", "sorting"],
+    "hints": ["Sort by start time and merge"],
+    "answer": "[[1,6],[8,10],[15,18]]"
+  },
+  {
+    "id": "p036",
+    "title": "Insert Interval",
+    "description": "Given intervals = [[1,3],[6,9]], newInterval = [2,5], insert and merge.",
+    "category": "medium",
+    "points": 11,
+    "prerequisites": ["p035"],
+    "tags": ["array"],
+    "hints": ["Insert and merge overlapping intervals"],
+    "answer": "[[1,5],[6,9]]"
+  },
+  {
+    "id": "p037",
+    "title": "Edit Distance",
+    "description": "Given word1 = 'horse', word2 = 'ros', compute minimum edit distance.",
+    "category": "hard",
+    "points": 20,
+    "prerequisites": ["p007"],
+    "tags": ["dynamic programming"],
+    "hints": ["Use DP table for insert, delete, replace"],
+    "answer": "3"
+  },
+  {
+    "id": "p038",
+    "title": "Implement Trie",
+    "description": "Implement a trie with insert, search, and startsWith methods.",
+    "category": "medium",
+    "points": 12,
+    "prerequisites": [],
+    "tags": ["trie", "design"],
+    "hints": ["Use nested hashmaps or nodes"],
+    "answer": "Custom trie implementation"
+  },
+  {
+    "id": "p039",
+    "title": "Word Search",
+    "description": "Given board = [['A','B','C','E'],['S','F','C','S'],['A','D','E','E']], word = 'ABCCED', find if word exists.",
+    "category": "medium",
+    "points": 13,
+    "prerequisites": ["p009"],
+    "tags": ["backtracking", "dfs"],
+    "hints": ["Use DFS with backtracking"],
+    "answer": "true"
+  },
+  {
+    "id": "p040",
+    "title": "Sudoku Solver",
+    "description": "Given a partially filled 9x9 Sudoku board, solve it.",
+    "category": "hard",
+    "points": 30,
+    "prerequisites": [],
+    "tags": ["backtracking"],
+    "hints": ["Use backtracking to try digits"],
+    "answer": "Solved Sudoku board"
+  },
+  {
+    "id": "p041",
+    "title": "Regular Expression Matching",
+    "description": "Given s = 'aa', p = 'a*', implement regex matching with '.' and '*'.",
+    "category": "hard",
+    "points": 20,
+    "prerequisites": ["p022"],
+    "tags": ["dynamic programming", "string"],
+    "hints": ["Use DP table for matching"],
+    "answer": "true"
+  },
+  {
+    "id": "p042",
+    "title": "Min Stack",
+    "description": "Design a stack with push, pop, top, and getMin in O(1).",
+    "category": "easy",
+    "points": 7,
+    "prerequisites": [],
+    "tags": ["stack", "design"],
+    "hints": ["Use two stacks, one for min values"],
+    "answer": "Custom min stack"
+  },
+  {
+    "id": "p043",
+    "title": "Valid Sudoku",
+    "description": "Given a 9x9 Sudoku board, check if it is valid.",
+    "category": "medium",
+    "points": 10,
+    "prerequisites": ["p040"],
+    "tags": ["hashset"],
+    "hints": ["Check rows, columns, and 3x3 boxes"],
+    "answer": "true or false"
+  },
+  {
+    "id": "p044",
+    "title": "Search a 2D Matrix",
+    "description": "Given matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]], target = 3, return if target exists.",
+    "category": "medium",
+    "points": 11,
+    "prerequisites": ["p004"],
+    "tags": ["matrix", "binary search"],
+    "hints": ["Use binary search on sorted matrix"],
+    "answer": "true"
+  },
+  {
+    "id": "p045",
+    "title": "Jump Game",
+    "description": "Given nums = [2,3,1,1,4], check if you can reach the last index.",
+    "category": "medium",
+    "points": 12,
+    "prerequisites": ["p004"],
+    "tags": ["greedy"],
+    "hints": ["Track maximum reachable index"],
+    "answer": "true"
+  },
+  {
+    "id": "p046",
+    "title": "Jump Game II",
+    "description": "Given nums = [2,3,1,1,4], return minimum jumps to reach last index.",
+    "category": "hard",
+    "points": 20,
+    "prerequisites": ["p045"],
+    "tags": ["greedy"],
+    "hints": ["Use greedy to track farthest reach"],
+    "answer": "2"
+  },
+  {
+    "id": "p047",
+    "title": "Gas Station",
+    "description": "Given gas = [1,2,3,4,5], cost = [3,4,5,1,2], find starting index to complete circuit.",
+    "category": "medium",
+    "points": 15,
+    "prerequisites": ["p045"],
+    "tags": ["greedy"],
+    "hints": ["Track total and current gas"],
+    "answer": "3"
+  },
+  {
+    "id": "p048",
+    "title": "Candy",
+    "description": "Given ratings = [1,0,2], distribute minimum candies based on ratings.",
+    "category": "hard",
+    "points": 22,
+    "prerequisites": [],
+    "tags": ["greedy"],
+    "hints": ["Use two-pass approach"],
+    "answer": "5"
+  },
+  {
+    "id": "p049",
+    "title": "Product of Array Except Self",
+    "description": "Given nums = [1,2,3,4], return array where output[i] is product of all elements except nums[i].",
+    "category": "medium",
+    "points": 11,
+    "prerequisites": ["p004"],
+    "tags": ["array"],
+    "hints": ["Use prefix and suffix products"],
+    "answer": "[24,12,8,6]"
+  },
+  {
+    "id": "p050",
+    "title": "Remove Duplicates from Sorted Array",
+    "description": "Given nums = [1,1,2], remove duplicates in-place and return the new length.",
+    "category": "easy",
+    "points": 3,
+    "prerequisites": [],
+    "tags": ["array", "two pointers"],
+    "hints": ["Use two pointers to track unique elements"],
+    "answer": "2"
   }
 ]

@@ -30,16 +30,31 @@
         <TextView android:id="@+id/hintsText" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
 
 
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/hintText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#2b3333"
+                android:padding="8dp"
+                android:textSize="16sp"/>
+
             <EditText
                 android:id="@+id/codeInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Enter JavaScript code here"
-                android:inputType="textMultiLine"
-                android:minLines="5"
-                android:gravity="top" />
+                android:background="@android:color/transparent"
+                android:padding="8dp"
+                android:textSize="16sp"/>
+        </FrameLayout>
 
-            <Button
+
+
+
+        <Button
                 android:id="@+id/runButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -53,6 +68,23 @@
                 android:layout_marginTop="16dp"
                 android:text="Output will appear here" />
 
+        <TextView
+            android:id="@+id/recommendTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Recommended Problems"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:layout_marginTop="24dp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recommendRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal" />
 
     </LinearLayout>
+
 </ScrollView>

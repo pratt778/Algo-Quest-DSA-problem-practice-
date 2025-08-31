@@ -61,6 +61,7 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.media3.common.ktx)
+    implementation(libs.material3)
 //    implementation(libs.firebase.common.ktx) // Add this line
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

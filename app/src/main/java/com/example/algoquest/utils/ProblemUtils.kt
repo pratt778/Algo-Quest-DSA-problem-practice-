@@ -1,6 +1,7 @@
 package com.example.algoquest.utils
 
 
+import android.util.Log
 import com.example.algoquest.model.Problem
 import java.util.ArrayDeque
 
@@ -41,7 +42,12 @@ object ProblemUtils {
     }
 
     fun getUnlockedProblems(problems: List<Problem>): List<Problem> {
+
+
         return problems.filter { problem ->
+            Log.d("UnlockCheck", "Checking ${problem.id}, prerequisites: ${problem.prerequisites}, solvedAll: ${
+                problem.prerequisites.all { UserProgress.hasSolved(it) }
+            }")
             problem.prerequisites.all { prereqId ->
                 UserProgress.hasSolved(prereqId)
             }
