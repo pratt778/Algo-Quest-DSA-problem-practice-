@@ -1,10 +1,32 @@
-<?xml version="1.0" encoding="utf-8"?>
+<!-- values/colors.xml -->
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
-    <color name="black">#FF000000</color>
+    <!-- Gradient Primary (Modern Teal) -->
+    <color name="gradient_primary">#FF009688</color>
+    <color name="gradient_secondary">#FF00796B</color>
+
+    <!-- Vibrant Accent (Modern Amber) -->
+    <color name="vibrant_accent">#FFFFC107</color>
+    <color name="vibrant_accent_dark">#FFFFA000</color>
+
+    <!-- Surface Colors -->
+    <color name="surface_light">#FFFFFFFF</color>
+    <color name="surface_variant_light">#FFF5F5F5</color>
+    <color name="surface_dark">#FF121212</color>
+    <color name="surface_variant_dark">#FF1E1E1E</color>
+
+    <!-- Background Colors -->
+    <color name="background_light">#FFFAFAFA</color>
+    <color name="background_dark">#FF000000</color>
+
+    <!-- Text Colors -->
+    <color name="text_primary">#FF212121</color>
+    <color name="text_primary_dark">#FFFFFFFF</color>
+
+    <!-- Ripple Colors -->
+    <color name="ripple_light">#1A000000</color>
+    <color name="ripple_dark">#1AFFFFFF</color>
+
+    <!-- Neutrals -->
     <color name="white">#FFFFFFFF</color>
+    <color name="black">#FF000000</color>
 </resources>

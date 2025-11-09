@@ -2,68 +2,135 @@ package com.example.algoquest
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
-import com.example.algoquest.Auth.AuthManager
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.algoquest.viewmodel.SignUpViewModel
 
 class SignUpActivity : ComponentActivity() {
-
-    private lateinit var emailInput: EditText
-    private lateinit var passwordInput: EditText
-    private lateinit var confirmPasswordInput: EditText
-    private lateinit var signUpButton: Button
-    private lateinit var loginLink: TextView
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_signup)
-
-        // Initialize UI elements
-        emailInput = findViewById(R.id.emailInput)
-        passwordInput = findViewById(R.id.passwordInput)
-        confirmPasswordInput = findViewById(R.id.confirmPasswordInput)
-        signUpButton = findViewById(R.id.signUpButton)
-        loginLink = findViewById(R.id.loginLink)
-
-        // Sign-up button click listener
-        signUpButton.setOnClickListener {
-            val email = emailInput.text.toString().trim()
-            val password = passwordInput.text.toString().trim()
-            val confirmPassword = confirmPasswordInput.text.toString().trim()
-
-            if (email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
-                Toast.makeText(this, "Please fill out all fields", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            if (password != confirmPassword) {
-                Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            AuthManager.signUp(email, password) { success, errorMessage ->
-                if (success) {
-                    Toast.makeText(this, "Sign-up successful", Toast.LENGTH_SHORT).show()
-                    navigateToMainActivity()
-                } else {
-                    Toast.makeText(this, "Sign-up failed: $errorMessage", Toast.LENGTH_LONG).show()
-                }
+        setContent {
+            MaterialTheme {
+                SignUpScreen(
+                    onNavigateToLogin = {
+                        startActivity(Intent(this, LoginActivity::class.java))
+                    },
+                    onNavigateToMain = {
+                        startActivity(Intent(this, MainActivity::class.java))
+                        finish()
+                    }
+                )
             }
         }
+    }
+}
 
-        // Login link click listener
-        loginLink.setOnClickListener {
-            startActivity(Intent(this, LoginActivity::class.java))
+@Composable
+fun SignUpScreen(
+    viewModel: SignUpViewModel = viewModel(),
+    onNavigateToLogin: () -> Unit = {},
+    onNavigateToMain: () -> Unit = {}
+) {
+    val context = LocalContext.current
+
+    // Handle toast messages
+    LaunchedEffect(viewModel.showToast) {
+        if (viewModel.showToast.isNotEmpty()) {
+            Toast.makeText(context, viewModel.showToast, Toast.LENGTH_SHORT).show()
+            viewModel.onToastShown()
         }
     }
 
-    private fun navigateToMainActivity() {
-        val intent = Intent(this, MainActivity::class.java)
-        // Pass any problem data if needed, e.g., intent.putExtra("problem", problem)
-        startActivity(intent)
-        finish()
+    // Handle navigation
+    LaunchedEffect(viewModel.navigateToMain) {
+        if (viewModel.navigateToMain) {
+            onNavigateToMain()
+        }
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Top
+    ) {
+        // Title
+        Text(
+            text = "Sign Up",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(bottom = 16.dp)
+        )
+
+        // Email input
+        OutlinedTextField(
+            value = viewModel.email,
+            onValueChange = { viewModel.updateEmail(it) },
+            label = { Text("Email") },
+            placeholder = { Text("Email") },
+            singleLine = true,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp)
+        )
+
+        // Password input
+        OutlinedTextField(
+            value = viewModel.password,
+            onValueChange = { viewModel.updatePassword(it) },
+            label = { Text("Password") },
+            placeholder = { Text("Password") },
+            visualTransformation = PasswordVisualTransformation(),
+            singleLine = true,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp)
+        )
+
+        // Confirm Password input
+        OutlinedTextField(
+            value = viewModel.confirmPassword,
+            onValueChange = { viewModel.updateConfirmPassword(it) },
+            label = { Text("Confirm Password") },
+            placeholder = { Text("Confirm Password") },
+            visualTransformation = PasswordVisualTransformation(),
+            singleLine = true,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp)
+        )
+
+        // Sign Up Button
+        Button(
+            onClick = { viewModel.onSignUpClick() },
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        ) {
+            Text("Sign Up")
+        }
+
+        // Login Link
+        TextButton(
+            onClick = onNavigateToLogin,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(top = 16.dp)
+        ) {
+            Text("Already have an account? Login")
+        }
     }
 }

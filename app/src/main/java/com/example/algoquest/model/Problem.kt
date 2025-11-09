@@ -2,6 +2,8 @@ package com.example.algoquest.model
 
 import android.os.Parcel
 import android.os.Parcelable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 
 data class Problem(
     val id: String = "",
@@ -12,8 +14,8 @@ data class Problem(
     val tags: List<String> = emptyList(),
     val hints: List<String> = emptyList(),
     val answer: String = "",
-    val prerequisites: List<String> = emptyList() // ✅ Added this line
-) : Parcelable {
+    val prerequisites: List<String> = emptyList(),
+    var isSolved: MutableState<Boolean> = mutableStateOf(false)) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString() ?: "",
         parcel.readString() ?: "",
