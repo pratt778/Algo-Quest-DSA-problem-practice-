@@ -23,6 +23,11 @@
             android:name=".SignUpActivity"
             android:exported="false" />
         <activity
+            android:name=".SettingsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MyApp" />
+        <activity
+
             android:name=".DetailActivity"
             android:exported="false" />
         <activity

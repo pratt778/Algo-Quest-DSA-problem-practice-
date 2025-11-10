@@ -2,8 +2,12 @@ package com.example.algoquest.storage
 
 import android.R
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import com.google.firebase.Firebase
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.firestore
 
 object FirestoreManager {
     private val db = FirebaseFirestore.getInstance()
@@ -50,6 +54,31 @@ object FirestoreManager {
             Log.e("FirestoreManager", "Failed to increment points", e)
             callback(false) // transaction failed
         }
+    }
+
+    // In FirestoreManager.kt
+    fun observeUserData(userId: String): LiveData<Map<String, Any>?> {
+        val liveData = MutableLiveData<Map<String, Any>?>()
+        val docRef = Firebase.firestore.collection("users").document(userId)
+
+        val listener = docRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                Log.w("FirestoreManager", "Listen failed.", e)
+                liveData.postValue(null)
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null && snapshot.exists()) {
+                liveData.postValue(snapshot.data)
+            } else {
+                liveData.postValue(null)
+            }
+        }
+
+        // Optional: Remove listener when not needed (not critical for simple cases)
+        // You can manage lifecycle if needed, but for basic use, it's okay.
+
+        return liveData
     }
 
 }

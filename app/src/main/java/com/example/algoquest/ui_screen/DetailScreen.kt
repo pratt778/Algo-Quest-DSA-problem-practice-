@@ -10,16 +10,26 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Stars
+import androidx.compose.material.icons.filled.Code
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.VisualTransformation
@@ -164,182 +174,460 @@ fun DetailScreen(
         // But we simulate via "autocomplete apply" on hint click or via button
     }
 
-    Surface(modifier = modifier.fillMaxSize()) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFFF8F9FF),
+                        Color(0xFFFFFFFF)
+                    )
+                )
+            )
+    ) {
         Column(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp)
+                .padding(20.dp)
         ) {
-            // Progress
-            Text(
-                text = progressText,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-
-            // Problem Info
-            Text(text = problem.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = problem.description, style = MaterialTheme.typography.bodyLarge)
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Metadata
-            MetadataRow(label = "Category", value = problem.category)
-            MetadataRow(label = "Points", value = problem.points.toString())
-            MetadataRow(label = "Tags", value = problem.tags.joinToString(", "))
-            MetadataRow(label = "Hints", value = problem.hints.joinToString(", "))
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Code Editor with Hint Overlay
-            // Code Editor with Autocomplete Hint Overlay
-            Box(
+            // Points Header Card
+            Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
-                    .padding(12.dp)
+                    .padding(bottom = 20.dp),
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.Transparent)
             ) {
-                // Hint (ghost text) – always behind
-                if (hintText.isNotEmpty()) {
-                    Text(
-                        text = hintText,
-                        fontSize = 16.sp,
-                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.6f),
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-
-                // Actual user input (transparent, on top)
-                BasicTextField(
-                    value = userCode,
-                    onValueChange = { userCode = it },
-                    enabled = isInputEnabled,
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 2.dp)
-                        .height(100.dp),// minor alignment tweak
-                    textStyle = LocalTextStyle.current.copy(
-                        color = MaterialTheme.colorScheme.onSurface // normal input color
-                    ),
-                    decorationBox = @Composable { innerTextField ->
-                        // No label, no underline – just raw field
-                        innerTextField()
-                    }
-                )
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Buttons
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Button(
-                    onClick = { executeCode() },
-                    enabled = isInputEnabled,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("Run Code")
-                }
-
-                // Add these states
-                var isGenerating by remember { mutableStateOf(false) }
-                val context = LocalContext.current
-
-// Hardcode your API key (for testing only!)
-                val GEMINI_API_KEY = "AIzaSyBre60ef7rbpXMA6sTyeQygVTFTlFEoJYI" // ← Replace with your key
-
-// Update the Solve Problem button
-                Button(
-                    onClick = {
-                        if (GEMINI_API_KEY == "YOUR_API_KEY_HERE") {
-                            Toast.makeText(context, "Please add your Gemini API key in code", Toast.LENGTH_LONG).show()
-                            return@Button
-                        }
-
-                        isGenerating = true
-                        scope.launch {
-                            val generatedCode = generateCodeWithGemini(
-                                problemTitle = problem.title,
-                                problemDescription = problem.description,
-                                apiKey = GEMINI_API_KEY
+                        .background(
+                            Brush.horizontalGradient(
+                                colors = listOf(
+                                    Color(0xFF667EEA),
+                                    Color(0xFF764BA2)
+                                )
                             )
-
-                            isGenerating = false
-                            if (generatedCode != null) {
-                                userCode = generatedCode
-                                outputText = "💡 AI-generated code inserted. Click 'Run Code' to test!"
-                            } else {
-                                // Check if it's an auth error
-                                outputText = "❌ AI failed: Invalid API key or no internet"
-                                Toast.makeText(context, "AI codegen failed. Check API key & internet.", Toast.LENGTH_LONG).show()
-                            }
-                        }
-                    },
-                    enabled = isInputEnabled && !isGenerating,
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isGenerating) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.secondaryContainer
-                    )
-                ) {
-                    if (isGenerating) {
-                        CircularProgressIndicator(
-                            color = MaterialTheme.colorScheme.onSecondary,
-                            modifier = Modifier.size(16.dp)
                         )
-                    } else {
-                        Text("Solve with AI", color = MaterialTheme.colorScheme.onSecondaryContainer)
+                        .padding(20.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(48.dp)
+                                .clip(CircleShape)
+                                .background(Color.White.copy(alpha = 0.2f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Stars,
+                                contentDescription = "Points",
+                                tint = Color(0xFFFFC107),
+                                modifier = Modifier.size(28.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Column {
+                            Text(
+                                text = "Your Progress",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.White.copy(alpha = 0.9f)
+                            )
+                            Text(
+                                text = progressText.substringAfter(": "),
+                                style = MaterialTheme.typography.headlineSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                        }
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Output
-            Text(
-                text = "Output:",
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = outputText,
+            // Problem Title Card
+            Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.small)
-                    .padding(12.dp),
-                color = if (outputText.startsWith("✅")) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
-            )
+                    .shadow(4.dp, RoundedCornerShape(16.dp)),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White)
+            ) {
+                Column(modifier = Modifier.padding(24.dp)) {
+                    // Title with colored accent
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .width(4.dp)
+                                .height(32.dp)
+                                .background(
+                                    Brush.verticalGradient(
+                                        colors = listOf(Color(0xFF667EEA), Color(0xFF764BA2))
+                                    ),
+                                    RoundedCornerShape(2.dp)
+                                )
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = problem.title,
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF1A1A1A)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = problem.description,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color(0xFF424242),
+                        lineHeight = 24.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    // Metadata Grid
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(Color(0xFFF5F5F5))
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        MetadataRow(label = "Category", value = problem.category)
+                        MetadataRow(label = "Points", value = problem.points.toString())
+                        MetadataRow(label = "Tags", value = problem.tags.joinToString(", "))
+                        MetadataRow(label = "Hints", value = problem.hints.joinToString(", "))
+                    }
+                }
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Recommendations
-            Text(
-                text = "Recommended Problems",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(top = 16.dp)
-            )
+            // Code Editor Card
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .shadow(4.dp, RoundedCornerShape(16.dp)),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White)
+            ) {
+                Column(modifier = Modifier.padding(20.dp)) {
+                    // Editor Header
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Code,
+                            contentDescription = "Code",
+                            tint = Color(0xFF667EEA),
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "JavaScript Editor",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF1A1A1A)
+                        )
+                        Spacer(modifier = Modifier.weight(1f))
+                        if (isSolved) {
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(
+                                        Brush.horizontalGradient(
+                                            colors = listOf(Color(0xFF4CAF50), Color(0xFF8BC34A))
+                                        )
+                                    )
+                                    .padding(horizontal = 12.dp, vertical = 6.dp)
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        imageVector = Icons.Default.CheckCircle,
+                                        contentDescription = "Solved",
+                                        tint = Color.White,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        text = "Solved",
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = Color.White,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+                        }
+                    }
 
-            Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-            if (recommendations.isNotEmpty()) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    recommendations.forEach { recProblem ->
-                        RecommendationCard(
-                            problem = recProblem,
-                            onClick = { onNavigateToProblem(recProblem) }
+                    // Code Input with Hint
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(Color(0xFF1E1E1E))
+                            .padding(16.dp)
+                    ) {
+                        // Hint (ghost text) – always behind
+                        if (hintText.isNotEmpty()) {
+                            Text(
+                                text = hintText,
+                                fontSize = 14.sp,
+                                fontFamily = FontFamily.Monospace,
+                                color = Color(0xFF6A6A6A),
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+
+                        // Actual user input (transparent, on top)
+                        BasicTextField(
+                            value = userCode,
+                            onValueChange = { userCode = it },
+                            enabled = isInputEnabled,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 2.dp)
+                                .height(120.dp),
+                            textStyle = LocalTextStyle.current.copy(
+                                color = Color(0xFFE0E0E0),
+                                fontSize = 14.sp,
+                                fontFamily = FontFamily.Monospace
+                            ),
+                            decorationBox = @Composable { innerTextField ->
+                                innerTextField()
+                            }
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Buttons
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        var isGenerating by remember { mutableStateOf(false) }
+                        val context = LocalContext.current
+                        val GEMINI_API_KEY = "AIzaSyBre60ef7rbpXMA6sTyeQygVTFTlFEoJYI"
+
+                        Button(
+                            onClick = { executeCode() },
+                            enabled = isInputEnabled,
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF667EEA),
+                                disabledContainerColor = Color(0xFFE0E0E0)
+                            ),
+                            contentPadding = PaddingValues(vertical = 16.dp)
+                        ) {
+                            Text(
+                                "Run Code",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 15.sp
+                            )
+                        }
+
+                        Button(
+                            onClick = {
+                                if (GEMINI_API_KEY == "YOUR_API_KEY_HERE") {
+                                    Toast.makeText(context, "Please add your Gemini API key in code", Toast.LENGTH_LONG).show()
+                                    return@Button
+                                }
+
+                                isGenerating = true
+                                scope.launch {
+                                    val generatedCode = generateCodeWithGemini(
+                                        problemTitle = problem.title,
+                                        problemDescription = problem.description,
+                                        apiKey = GEMINI_API_KEY
+                                    )
+
+                                    isGenerating = false
+                                    if (generatedCode != null) {
+                                        userCode = generatedCode
+                                        outputText = "💡 AI-generated code inserted. Click 'Run Code' to test!"
+                                    } else {
+                                        outputText = "❌ AI failed: Invalid API key or no internet"
+                                        Toast.makeText(context, "AI codegen failed. Check API key & internet.", Toast.LENGTH_LONG).show()
+                                    }
+                                }
+                            },
+                            enabled = isInputEnabled && !isGenerating,
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF9C27B0),
+                                disabledContainerColor = Color(0xFFE0E0E0)
+                            ),
+                            contentPadding = PaddingValues(vertical = 16.dp)
+                        ) {
+                            if (isGenerating) {
+                                CircularProgressIndicator(
+                                    color = Color.White,
+                                    modifier = Modifier.size(20.dp),
+                                    strokeWidth = 2.dp
+                                )
+                            } else {
+                                Text(
+                                    "Solve with AI",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 15.sp
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Output Card
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .shadow(4.dp, RoundedCornerShape(16.dp)),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = if (outputText.startsWith("✅")) Color(0xFFE8F5E9)
+                    else if (outputText.startsWith("❌")) Color(0xFFFFEBEE)
+                    else Color.White
+                )
+            ) {
+                Column(modifier = Modifier.padding(20.dp)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .clip(CircleShape)
+                                .background(
+                                    when {
+                                        outputText.startsWith("✅") -> Color(0xFF4CAF50)
+                                        outputText.startsWith("❌") -> Color(0xFFF44336)
+                                        else -> Color(0xFF2196F3)
+                                    }
+                                )
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Output",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF1A1A1A)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(
+                                when {
+                                    outputText.startsWith("✅") -> Color(0xFFC8E6C9)
+                                    outputText.startsWith("❌") -> Color(0xFFFFCDD2)
+                                    else -> Color(0xFFF5F5F5)
+                                }
+                            )
+                            .padding(16.dp)
+                    ) {
+                        Text(
+                            text = outputText,
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontFamily = FontFamily.Monospace,
+                            color = Color(0xFF1A1A1A),
+                            lineHeight = 22.sp
                         )
                     }
                 }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Recommendations Section
+            if (recommendations.isNotEmpty()) {
+                Column {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(6.dp)
+                                .clip(CircleShape)
+                                .background(Color(0xFF667EEA))
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Recommended Problems",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF1A1A1A)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        recommendations.forEach { recProblem ->
+                            RecommendationCard(
+                                problem = recProblem,
+                                onClick = { onNavigateToProblem(recProblem) }
+                            )
+                        }
+                    }
+                }
             } else {
-                Text("No recommendations available", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .shadow(2.dp, RoundedCornerShape(16.dp)),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(32.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Stars,
+                                contentDescription = null,
+                                modifier = Modifier.size(48.dp),
+                                tint = Color(0xFFE0E0E0)
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text(
+                                "No recommendations available",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = Color(0xFF9E9E9E)
+                            )
+                        }
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -356,9 +644,23 @@ fun DetailScreen(
 
 @Composable
 private fun MetadataRow(label: String, value: String) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Text("$label:", fontWeight = FontWeight.Bold, modifier = Modifier.width(80.dp))
-        Text(value, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.Top
+    ) {
+        Text(
+            "$label:",
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.width(90.dp),
+            color = Color(0xFF667EEA),
+            style = MaterialTheme.typography.bodyMedium
+        )
+        Text(
+            value,
+            color = Color(0xFF424242),
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.weight(1f)
+        )
     }
 }
 
@@ -366,18 +668,68 @@ private fun MetadataRow(label: String, value: String) {
 private fun RecommendationCard(problem: Problem, onClick: () -> Unit) {
     Card(
         modifier = Modifier
-            .width(200.dp)
+            .width(240.dp)
+            .shadow(4.dp, RoundedCornerShape(16.dp))
             .clickable(onClick = onClick),
-        shape = MaterialTheme.shapes.medium
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            Text(problem.title, fontWeight = FontWeight.Medium, maxLines = 2)
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                "${problem.points} pts • ${problem.category}",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+        Column(modifier = Modifier.fillMaxWidth()) {
+            // Colored top bar
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(4.dp)
+                    .background(
+                        Brush.horizontalGradient(
+                            colors = listOf(Color(0xFF667EEA), Color(0xFF764BA2))
+                        )
+                    )
             )
+
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    problem.title,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 2,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Color(0xFF1A1A1A)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(Color(0xFFFFF8E1))
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.Stars,
+                                contentDescription = "Points",
+                                tint = Color(0xFFFFC107),
+                                modifier = Modifier.size(12.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                "${problem.points} pts",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color(0xFFF57C00),
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        problem.category.replaceFirstChar { it.uppercase() },
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color(0xFF757575)
+                    )
+                }
+            }
         }
     }
 }
