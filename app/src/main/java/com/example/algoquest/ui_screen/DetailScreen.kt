@@ -6,8 +6,10 @@ import androidx.annotation.OptIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -20,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Stars
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -33,6 +36,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -42,6 +46,7 @@ import com.example.algoquest.Auth.AuthManager
 import com.example.algoquest.js.JsExecutor
 import com.example.algoquest.model.Problem
 import com.example.algoquest.storage.FirestoreManager
+import com.example.algoquest.ui.components.YesNoDialog
 import com.example.algoquest.ui.theme.AlgoQuestTheme
 import com.example.algoquest.utils.RecommendationUtils
 import com.example.algoquest.utils.Trie
@@ -75,6 +80,7 @@ fun DetailScreen(
 
     val jsExecutor = remember { JsExecutor() }
     val jsTrie = remember { buildJsTrie() }
+    var showAIDialog by remember { mutableStateOf(false) }
 
     val userId = AuthManager.currentUser()?.uid
 
@@ -440,30 +446,7 @@ fun DetailScreen(
                         }
 
                         Button(
-                            onClick = {
-                                if (GEMINI_API_KEY == "YOUR_API_KEY_HERE") {
-                                    Toast.makeText(context, "Please add your Gemini API key in code", Toast.LENGTH_LONG).show()
-                                    return@Button
-                                }
-
-                                isGenerating = true
-                                scope.launch {
-                                    val generatedCode = generateCodeWithGemini(
-                                        problemTitle = problem.title,
-                                        problemDescription = problem.description,
-                                        apiKey = GEMINI_API_KEY
-                                    )
-
-                                    isGenerating = false
-                                    if (generatedCode != null) {
-                                        userCode = generatedCode
-                                        outputText = "💡 AI-generated code inserted. Click 'Run Code' to test!"
-                                    } else {
-                                        outputText = "❌ AI failed: Invalid API key or no internet"
-                                        Toast.makeText(context, "AI codegen failed. Check API key & internet.", Toast.LENGTH_LONG).show()
-                                    }
-                                }
-                            },
+                            onClick = {showAIDialog = true},
                             enabled = isInputEnabled && !isGenerating,
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(12.dp),
@@ -486,6 +469,42 @@ fun DetailScreen(
                                     fontSize = 15.sp
                                 )
                             }
+                        }
+                        if (showAIDialog) {
+                            YesNoDialog(
+                                title = "Solve with AI",
+                                message = "Do you want to use AI for help?",
+                                yesText = "Yep",
+                                noText = "Not Now",
+                                onYes = {
+
+                                        if (GEMINI_API_KEY == "YOUR_API_KEY_HERE") {
+                                            Toast.makeText(context, "Please add your Gemini API key in code", Toast.LENGTH_LONG).show()
+//                                            return@Button
+                                        }
+
+                                        isGenerating = true
+                                        scope.launch {
+                                            val generatedCode = generateCodeWithGemini(
+                                                problemTitle = problem.title,
+                                                problemDescription = problem.description,
+                                                apiKey = GEMINI_API_KEY
+                                            )
+
+                                            isGenerating = false
+                                            if (generatedCode != null) {
+                                                userCode = generatedCode
+                                                outputText = "💡 AI-generated code inserted. Click 'Run Code' to test!"
+                                            } else {
+                                                outputText = "❌ AI failed: Invalid API key or no internet"
+                                                Toast.makeText(context, "AI codegen failed. Check API key & internet.", Toast.LENGTH_LONG).show()
+                                            }
+                                        }
+
+                                },
+                                onNo = { },
+                                onDismiss = { showAIDialog = false }
+                            )
                         }
                     }
                 }
@@ -665,21 +684,27 @@ private fun MetadataRow(label: String, value: String) {
 }
 
 @Composable
+
 private fun RecommendationCard(problem: Problem, onClick: () -> Unit) {
     Card(
         modifier = Modifier
-            .width(240.dp)
-            .shadow(4.dp, RoundedCornerShape(16.dp))
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+            .width(280.dp)
+            .shadow(6.dp, RoundedCornerShape(20.dp))
+            .clickable(
+                onClick = onClick,
+//                indication = rememberRipple(bounded = true),
+                interactionSource = remember { MutableInteractionSource() }
+            ),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            // Colored top bar
+            // Gradient Top Bar
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(4.dp)
+                    .height(6.dp)
                     .background(
                         Brush.horizontalGradient(
                             colors = listOf(Color(0xFF667EEA), Color(0xFF764BA2))
@@ -687,53 +712,102 @@ private fun RecommendationCard(problem: Problem, onClick: () -> Unit) {
                     )
             )
 
-            Column(modifier = Modifier.padding(16.dp)) {
+            Column(modifier = Modifier.padding(18.dp)) {
+                // Title
                 Text(
-                    problem.title,
+                    text = problem.title,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
+                    color = Color(0xFF1A1A1A),
                     maxLines = 2,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = Color(0xFF1A1A1A)
+                    overflow = TextOverflow.Ellipsis
                 )
-                Spacer(modifier = Modifier.height(8.dp))
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(Color(0xFFFFF8E1))
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // Description
+                Text(
+                    text = problem.description.ifEmpty { "No description available." },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color(0xFF666666),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    lineHeight = 18.sp
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Tags (Scrollable Row)
+                if (problem.tags.isNotEmpty()) {
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        modifier = Modifier.padding(vertical = 4.dp)
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Default.Stars,
-                                contentDescription = "Points",
-                                tint = Color(0xFFFFC107),
-                                modifier = Modifier.size(12.dp)
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                "${problem.points} pts",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = Color(0xFFF57C00),
-                                fontWeight = FontWeight.Bold
-                            )
+                        items(problem.tags) { tag ->
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(Color(0xFF667EEA).copy(alpha = 0.12f))
+                                    .padding(horizontal = 10.dp, vertical = 5.dp)
+                            ) {
+                                Text(
+                                    text = tag,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = Color(0xFF667EEA),
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
                         }
                     }
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
+                }
+
+                // Points + Difficulty Row
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    // Points Badge
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color(0xFFFFF8E1))
+                            .padding(horizontal = 10.dp, vertical = 6.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Stars,
+                            contentDescription = "Points",
+                            tint = Color(0xFFFFC107),
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "+${problem.points}",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = Color(0xFFF57C00),
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    // Difficulty
                     Text(
-                        problem.category.replaceFirstChar { it.uppercase() },
-                        style = MaterialTheme.typography.labelSmall,
-                        color = Color(0xFF757575)
+                        text = problem.category.replaceFirstChar { it.uppercase() },
+                        style = MaterialTheme.typography.labelMedium,
+                        color = when (problem.category.lowercase()) {
+                            "easy" -> Color(0xFF4CAF50)
+                            "medium" -> Color(0xFFFF9800)
+                            "hard" -> Color(0xFFF44336)
+                            else -> Color(0xFF757575)
+                        },
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
             }
         }
     }
 }
-
 // Helper: Build JS Trie once
 
 fun buildJsTrie(): Trie {

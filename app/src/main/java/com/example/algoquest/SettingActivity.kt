@@ -8,11 +8,12 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.*
 import com.example.algoquest.ui_screen.SettingsScreen
+import com.example.algoquest.utils.ThemeManager
 
 class SettingsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        ThemeManager.applyTheme(this)
         setContent {
             var darkTheme by remember { mutableStateOf(false) }
 

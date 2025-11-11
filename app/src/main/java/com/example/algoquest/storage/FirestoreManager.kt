@@ -8,6 +8,8 @@ import com.google.firebase.Firebase
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
+import kotlin.text.get
+import kotlin.text.set
 
 object FirestoreManager {
     private val db = FirebaseFirestore.getInstance()
@@ -80,5 +82,32 @@ object FirestoreManager {
 
         return liveData
     }
+    fun saveProblemSolution(userId: String, problemId: String, solution: String, callback: (Boolean) -> Unit) {
+        val solutionsRef = Firebase.firestore.collection("users").document(userId)
+            .collection("solutions").document(problemId)
 
+        solutionsRef.set(mapOf(
+            "code" to solution,
+            "timestamp" to System.currentTimeMillis()
+        ))
+            .addOnSuccessListener { callback(true) }
+            .addOnFailureListener { callback(false) }
+    }
+
+    fun getProblemSolution(userId: String, problemId: String, callback: (String?) -> Unit) {
+        val solutionsRef = Firebase.firestore.collection("users").document(userId)
+            .collection("solutions").document(problemId)
+
+        solutionsRef.get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    callback(document.getString("code"))
+                } else {
+                    callback(null)
+                }
+            }
+            .addOnFailureListener {
+                callback(null)
+            }
+    }
 }

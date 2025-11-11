@@ -91,6 +91,7 @@ dependencies {
     implementation(libs.androidx.media3.common.ktx)
     implementation(libs.androidx.runtime.livedata)
     implementation(libs.androidx.foundation)
+    implementation(libs.androidx.ui.text)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

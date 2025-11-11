@@ -21,6 +21,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Accessible
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.automirrored.filled.More
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Stars
@@ -44,8 +45,10 @@ import com.example.algoquest.Auth.AuthManager
 import com.example.algoquest.Auth.AuthManager.currentUser
 import com.example.algoquest.model.Problem
 import com.example.algoquest.storage.FirestoreManager
+import com.example.algoquest.ui.components.YesNoDialog
 import com.example.algoquest.utils.FuzzyMatcher
 import com.example.algoquest.utils.ProblemUtils
+import com.example.algoquest.utils.ThemeManager
 import com.example.algoquest.utils.UserProgress
 import com.example.algoquest.viewmodel.MainViewModel
 import com.google.firebase.FirebaseApp
@@ -57,7 +60,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         FirebaseApp.initializeApp(this)
-
+        ThemeManager.applyTheme(this)
         val currentUser = AuthManager.currentUser()
         if (currentUser == null) {
             startActivity(Intent(this, SignUpActivity::class.java))
@@ -66,7 +69,11 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            var darkTheme by remember { mutableStateOf(false) }
+            val isDarkTheme = ThemeManager.getDarkMode(this@MainActivity)
+            var darkTheme by remember { mutableStateOf(isDarkTheme) }
+            LaunchedEffect(darkTheme) {
+                ThemeManager.setDarkMode(this@MainActivity, darkTheme)
+            }
             MaterialTheme(
                 colorScheme = if (darkTheme) darkColorScheme() else lightColorScheme()
             ) {
@@ -113,6 +120,7 @@ fun MainScreen(
     var selectedTag by remember { mutableStateOf<String?>(null) }
     var showOnlySolved by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
+    var showLogoutDialog by remember { mutableStateOf(false) }
 
     val allTags = listOf("Array", "String", "Math", "Recursion")
 
@@ -264,7 +272,7 @@ fun MainScreen(
 
                     // Logout button in header
                     IconButton(
-                        onClick = onLogout,
+                        onClick = { showLogoutDialog = true },
                         modifier = Modifier
                             .align(Alignment.TopEnd)
                             .clip(CircleShape)
@@ -275,6 +283,17 @@ fun MainScreen(
                             contentDescription = "Logout",
                             tint = Color.White,
                             modifier = Modifier.size(20.dp)
+                        )
+                    }
+                    if (showLogoutDialog) {
+                        YesNoDialog(
+                            title = "Logout",
+                            message = "Do you want to logout?",
+                            yesText = "Logout",
+                            noText = "Cancel",
+                            onYes = onLogout,
+                            onDismiss = { showLogoutDialog = false },
+                            onNo = { /* just dismiss */ }
                         )
                     }
 
@@ -289,7 +308,7 @@ fun MainScreen(
                             .background(Color.White.copy(alpha = 0.2f))
                     ) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.Accessible,
+                            imageVector = Icons.AutoMirrored.Filled.More,
                             contentDescription = "Settings",
                             tint = Color.White,
                             modifier = Modifier.size(20.dp)
@@ -621,6 +640,40 @@ fun ProblemCard(
                     color = Color(0xFF424242),
                     lineHeight = 22.sp
                 )
+                /* ---------- NEW: Tags Row ---------- */
+                if (problem.tags.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
+                    ) {
+                        items(problem.tags) { tag ->
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(
+                                        Brush.horizontalGradient(
+                                            colors = listOf(
+                                                Color(0xFF667EEA).copy(alpha = 0.15f),
+                                                Color(0xFF764BA2).copy(alpha = 0.15f)
+                                            )
+                                        )
+                                    )
+                                    .padding(horizontal = 12.dp, vertical = 6.dp)
+                            ) {
+                                Text(
+                                    text = tag,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = Color(0xFF667EEA),
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
+                        }
+                    }
+                }
 
                 if (problem.prerequisites.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(12.dp))
