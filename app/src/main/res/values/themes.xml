@@ -2,7 +2,14 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme -->
 
-
+    <style name="Theme.MyApp.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_splash</item>
+        <!-- Optional: background color (defaults to windowBackground) -->
+        <item name="windowSplashScreenBackground">@color/background_light</item>
+        <!-- Optional: branding below the icon (min 1000ms required if used) -->
+        <!-- <item name="windowSplashScreenBrandingImage">@drawable/brand_logo</item> -->
+        <item name="postSplashScreenTheme">@style/Theme.MyApp</item>
+    </style>
     <style name="Base.Theme.MyApp" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Primary Colors -->
         <item name="colorPrimary">@color/gradient_primary</item>
@@ -73,5 +80,8 @@
     <style name="TextAppearance.MyApp.Title.Large" parent="TextAppearance.Material3.TitleLarge">
 
     </style>
+
+    <!-- res/values/themes.xml (or themes.xml (night)) -->
+
 
 </resources>

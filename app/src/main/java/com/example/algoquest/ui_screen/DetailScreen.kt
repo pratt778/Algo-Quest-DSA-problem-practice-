@@ -66,6 +66,7 @@ fun DetailScreen(
     onNavigateToProblem: (Problem) -> Unit,
     modifier: Modifier = Modifier
 ) {
+
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val mainViewModel: MainViewModel = viewModel()
@@ -81,7 +82,7 @@ fun DetailScreen(
     val jsExecutor = remember { JsExecutor() }
     val jsTrie = remember { buildJsTrie() }
     var showAIDialog by remember { mutableStateOf(false) }
-
+    var savedSolution by remember { mutableStateOf<String?>(null) }
     val userId = AuthManager.currentUser()?.uid
 
     // Load user data & check solved status
@@ -105,6 +106,15 @@ fun DetailScreen(
             }
         } else {
             progressText = "Your Points: 0 (Log in to track progress)"
+        }
+    }
+
+    // Load saved solution if problem is already solved
+    LaunchedEffect(userId, problem.id, isSolved) {
+        if (userId != null && isSolved) {
+            FirestoreManager.getProblemSolution(userId, problem.id) { solution ->
+                savedSolution = solution
+            }
         }
     }
 
@@ -140,6 +150,15 @@ fun DetailScreen(
                 outputText = "✅ Correct! Output: $result"
                 if (userId != null && !isSolved) {
                     isInputEnabled = false
+
+
+                    FirestoreManager.saveProblemSolution(userId, problem.id, userCode) { success ->
+                        if (success) {
+                            savedSolution = userCode // Update UI immediately
+                            Log.d("DetailScreen", "Solution saved successfully")
+                        }
+                    }
+
                     FirestoreManager.incrementPoints(userId, problem.points) { success ->
                         if (success) {
                             FirestoreManager.markProblemSolved(userId, problem.id) { solvedSuccess ->
@@ -416,6 +435,50 @@ fun DetailScreen(
                         )
                     }
 
+                    // Right after the code input Box closes and before Spacer(modifier = Modifier.height(16.dp))
+
+// Display saved solution if available
+                    if (savedSolution != null) {
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(Color(0xFF2A2A2A))
+                                .padding(12.dp)
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(bottom = 8.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.CheckCircle,
+                                    contentDescription = "Saved Solution",
+                                    tint = Color(0xFF4CAF50),
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = "Your Saved Solution:",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = Color(0xFF4CAF50),
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+
+                            Text(
+                                text = savedSolution ?: "",
+                                fontSize = 14.sp,
+                                fontFamily = FontFamily.Monospace,
+                                color = Color(0xFFB0B0B0),
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
                     Spacer(modifier = Modifier.height(16.dp))
 
                     // Buttons
@@ -478,28 +541,28 @@ fun DetailScreen(
                                 noText = "Not Now",
                                 onYes = {
 
-                                        if (GEMINI_API_KEY == "YOUR_API_KEY_HERE") {
-                                            Toast.makeText(context, "Please add your Gemini API key in code", Toast.LENGTH_LONG).show()
+                                    if (GEMINI_API_KEY == "YOUR_API_KEY_HERE") {
+                                        Toast.makeText(context, "Please add your Gemini API key in code", Toast.LENGTH_LONG).show()
 //                                            return@Button
-                                        }
+                                    }
 
-                                        isGenerating = true
-                                        scope.launch {
-                                            val generatedCode = generateCodeWithGemini(
-                                                problemTitle = problem.title,
-                                                problemDescription = problem.description,
-                                                apiKey = GEMINI_API_KEY
-                                            )
+                                    isGenerating = true
+                                    scope.launch {
+                                        val generatedCode = generateCodeWithGemini(
+                                            problemTitle = problem.title,
+                                            problemDescription = problem.description,
+                                            apiKey = GEMINI_API_KEY
+                                        )
 
-                                            isGenerating = false
-                                            if (generatedCode != null) {
-                                                userCode = generatedCode
-                                                outputText = "💡 AI-generated code inserted. Click 'Run Code' to test!"
-                                            } else {
-                                                outputText = "❌ AI failed: Invalid API key or no internet"
-                                                Toast.makeText(context, "AI codegen failed. Check API key & internet.", Toast.LENGTH_LONG).show()
-                                            }
+                                        isGenerating = false
+                                        if (generatedCode != null) {
+                                            userCode = generatedCode
+                                            outputText = "💡 AI-generated code inserted. Click 'Run Code' to test!"
+                                        } else {
+                                            outputText = "❌ AI failed: Invalid API key or no internet"
+                                            Toast.makeText(context, "AI codegen failed. Check API key & internet.", Toast.LENGTH_LONG).show()
                                         }
+                                    }
 
                                 },
                                 onNo = { },
@@ -848,8 +911,10 @@ suspend fun generateCodeWithGemini(
             Solve the following problem in JavaScript.
             Return ONLY the JavaScript code—no explanation, no markdown, no comments.
             if you made a function make sure to call function as well and print answer.
+            Dont give multiple answers.
             Problem Title: $problemTitle
             Description: $problemDescription
+            
         """.trimIndent()
 
         val jsonInput = JSONObject().apply {

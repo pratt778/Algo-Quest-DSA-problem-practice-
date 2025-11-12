@@ -1,6 +1,7 @@
 package com.example.algoquest.storage
 
 import android.R
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -12,6 +13,7 @@ import kotlin.text.get
 import kotlin.text.set
 
 object FirestoreManager {
+
     private val db = FirebaseFirestore.getInstance()
 
     fun getUserData(userId: String, onResult: (Map<String, Any>?) -> Unit) {

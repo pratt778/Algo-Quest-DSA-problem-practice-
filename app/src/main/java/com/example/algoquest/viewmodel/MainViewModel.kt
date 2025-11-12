@@ -40,6 +40,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private val _recentlyShown = MutableLiveData<Set<String>>(emptySet())
+    val recentlyShown: LiveData<Set<String>> = _recentlyShown
+
+    fun updateRecentlyShown(newIds: Set<String>) {
+        _recentlyShown.value = newIds
+    }
+
+    fun clearRecentlyShown() {
+        _recentlyShown.value = emptySet()
+    }
+
     override fun onCleared() {
         jsExecutor.close()
         super.onCleared()

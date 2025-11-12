@@ -6,6 +6,9 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.OptIn
@@ -24,6 +27,7 @@ import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.filled.More
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Stars
 import androidx.compose.material3.*
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -48,16 +52,19 @@ import com.example.algoquest.storage.FirestoreManager
 import com.example.algoquest.ui.components.YesNoDialog
 import com.example.algoquest.utils.FuzzyMatcher
 import com.example.algoquest.utils.ProblemUtils
+import com.example.algoquest.utils.SmartShuffle
 import com.example.algoquest.utils.ThemeManager
 import com.example.algoquest.utils.UserProgress
 import com.example.algoquest.viewmodel.MainViewModel
 import com.google.firebase.FirebaseApp
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 
 class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen();
         super.onCreate(savedInstanceState)
         FirebaseApp.initializeApp(this)
         ThemeManager.applyTheme(this)
@@ -77,8 +84,9 @@ class MainActivity : ComponentActivity() {
             MaterialTheme(
                 colorScheme = if (darkTheme) darkColorScheme() else lightColorScheme()
             ) {
-
-                MainScreen(
+                MyApp(
+                    isDarkTheme = darkTheme,
+                    onThemeToggle = { newTheme -> darkTheme = newTheme },
                     viewModel = viewModel,
                     userEmail = currentUser.email ?: "",
                     userId = currentUser.uid,
@@ -91,11 +99,26 @@ class MainActivity : ComponentActivity() {
                         AuthManager.signOut()
                         startActivity(Intent(this, SignUpActivity::class.java))
                         finish()
-                    },
-                    darkTheme = darkTheme,
-                    onThemeToggle = { newTheme -> darkTheme = newTheme }
-
+                    }
                 )
+//                MainScreen(
+//                    viewModel = viewModel,
+//                    userEmail = currentUser.email ?: "",
+//                    userId = currentUser.uid,
+//                    onProblemClick = { problem ->
+//                        val intent = Intent(this, DetailActivity::class.java)
+//                        intent.putExtra("problem", problem)
+//                        startActivity(intent)
+//                    },
+//                    onLogout = {
+//                        AuthManager.signOut()
+//                        startActivity(Intent(this, SignUpActivity::class.java))
+//                        finish()
+//                    },
+//                    darkTheme = darkTheme,
+//                    onThemeToggle = { newTheme -> darkTheme = newTheme }
+//
+//                )
             }
         }
     }
@@ -121,8 +144,13 @@ fun MainScreen(
     var showOnlySolved by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
     var showLogoutDialog by remember { mutableStateOf(false) }
+    var showExitDialog by remember { mutableStateOf(false) }
 
-    val allTags = listOf("Array", "String", "Math", "Recursion")
+    val allTags = remember(problems) {
+        problems.flatMap { it.tags }
+            .distinct()
+            .sorted()
+    }
 
     LaunchedEffect(userId) {
         UserProgress.syncFromFirestore(userId) {
@@ -133,39 +161,98 @@ fun MainScreen(
         viewModel.observeUserPoints(userId)
     }
 
-    val displayProblems = remember(problems, isSynced, selectedDifficulty, selectedTag, showOnlySolved, searchQuery) {
-        if (!isSynced || problems.isEmpty()) {
-            emptyList()
-        } else {
-            var filtered = problems.toMutableList()
+    BackHandler {
+        showExitDialog = true
+    }
 
-            if (searchQuery.isNotBlank()) {
-                filtered = filtered.filter { FuzzyMatcher.matchesProblem(searchQuery, it) }.toMutableList()
-            }
+//    val displayProblems = remember(problems, isSynced, selectedDifficulty, selectedTag, showOnlySolved, searchQuery) {
+//        if (!isSynced || problems.isEmpty()) {
+//            emptyList()
+//        } else {
+//            var filtered = problems.toMutableList()
+//
+//            if (searchQuery.isNotBlank()) {
+//                filtered = filtered.filter { FuzzyMatcher.matchesProblem(searchQuery, it) }.toMutableList()
+//            }
+//
+//            selectedDifficulty?.let {
+//                filtered = filtered.filter { problem ->
+//                    problem.category.trim().lowercase() == selectedDifficulty!!.lowercase()
+//                }.toMutableList()
+//            }
+//
+//            if (selectedTag != null) {
+//                filtered = filtered.filter { it.tags.contains(selectedTag) }.toMutableList()
+//            }
+//
+//            if (showOnlySolved) {
+//                filtered = filtered.filter { it.isSolved.value }.toMutableList()
+//            }
+//
+//            try {
+//                val sorted = ProblemUtils.sortProblemsTopologically(filtered)
+//                ProblemUtils.getUnlockedProblems(sorted)
+//            } catch (e: Exception) {
+//                Log.e("MainActivity", "Error processing problems", e)
+//                emptyList()
+//            }
+//        }
+//    }
+    val userPoints by viewModel.points.observeAsState(0L)
+    val recentlyShown by viewModel.recentlyShown.observeAsState(emptySet())
 
-            selectedDifficulty?.let {
-                filtered = filtered.filter { problem ->
-                    problem.category.trim().lowercase() == selectedDifficulty!!.lowercase()
-                }.toMutableList()
-            }
+    val shuffledProblems = remember(
+        problems, isSynced, selectedDifficulty, selectedTag, showOnlySolved, searchQuery,
+        userPoints,
+    ) {
+        if (!isSynced || problems.isEmpty()) return@remember emptyList()
 
-            if (selectedTag != null) {
-                filtered = filtered.filter { it.tags.contains(selectedTag) }.toMutableList()
-            }
+        // Step 1: Apply filters (search, difficulty, tags, solved)
+        var filtered = problems.toMutableList()
 
-            if (showOnlySolved) {
-                filtered = filtered.filter { it.isSolved.value }.toMutableList()
-            }
+        if (searchQuery.isNotBlank()) {
+            filtered =
+                filtered.filter { FuzzyMatcher.matchesProblem(searchQuery, it) }.toMutableList()
+        }
+        selectedDifficulty?.let {
+            filtered = filtered.filter { p -> p.category.trim().lowercase() == it.lowercase() }
+                .toMutableList()
+        }
+        selectedTag?.let {
+            filtered = filtered.filter { p -> p.tags.contains(it) }.toMutableList()
+        }
+        if (showOnlySolved) {
+            filtered = filtered.filter { it.isSolved.value }.toMutableList()
+        }
 
-            try {
-                val sorted = ProblemUtils.sortProblemsTopologically(filtered)
-                ProblemUtils.getUnlockedProblems(sorted)
-            } catch (e: Exception) {
-                Log.e("MainActivity", "Error processing problems", e)
-                emptyList()
-            }
+        // Step 2: Topological sort + unlock prerequisites
+        val sorted = try {
+            ProblemUtils.sortProblemsTopologically(filtered)
+        } catch (e: Exception) {
+            Log.e("MainScreen", "Topo sort failed", e)
+            filtered
+        }
+        val unlocked = ProblemUtils.getUnlockedProblems(sorted)
+
+        // Step 3: SMART SHUFFLE
+        SmartShuffle.shuffle(
+            problems = unlocked,
+            userPoints = userPoints,
+            recentlyShown = recentlyShown?:emptySet(),
+            maxResults = 50
+        )
+    }
+
+// === UPDATE shown problems when list changes ===
+    // === UPDATE shown problems when list changes (but avoid infinite loop) ===
+    LaunchedEffect(problems, selectedDifficulty, selectedTag, showOnlySolved, searchQuery) {
+        kotlinx.coroutines.delay(300)
+        if (shuffledProblems.isNotEmpty()) {
+            val ids = shuffledProblems.take(15).map { it.id }.toSet()
+            viewModel.updateRecentlyShown(ids)
         }
     }
+
 
     Box(
         modifier = Modifier
@@ -185,6 +272,12 @@ fun MainScreen(
                 .padding(20.dp)
         ) {
             // User Info Header with gradient card
+//            IconButton(
+//                onClick = { viewModel.clearRecentlyShown() },
+////                modifier = Modifier.align(Alignment.TopEnd)
+//            ) {
+//                Icon(Icons.Default.Refresh, "Refresh feed", tint = Color.Red)
+//            }
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -404,7 +497,7 @@ fun MainScreen(
             }
 
             // Problems List
-            if (displayProblems.isEmpty() && isSynced) {
+            if (shuffledProblems.isEmpty() && isSynced) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -433,12 +526,33 @@ fun MainScreen(
                     verticalArrangement = Arrangement.spacedBy(14.dp),
                     contentPadding = PaddingValues(bottom = 16.dp)
                 ) {
-                    items(displayProblems) { problem ->
+                    items(shuffledProblems) { problem ->
                         ProblemCard(
                             problem = problem,
                             onClick = { onProblemClick(problem) }
                         )
                     }
+                }
+
+                // Exit confirmation dialog
+                if (showExitDialog) {
+                    val context = LocalContext.current as? ComponentActivity
+
+                    YesNoDialog(
+                        title = "Exit App",
+                        message = "Do you want to exit the app?",
+                        yesText = "Exit",
+                        noText = "Cancel",
+                        onYes = {
+                            context?.finish()
+                        },
+                        onNo = {
+                            showExitDialog = false
+                        },
+                        onDismiss = {
+                            showExitDialog = false
+                        }
+                    )
                 }
             }
         }

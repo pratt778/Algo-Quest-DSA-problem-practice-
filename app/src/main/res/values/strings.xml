@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">Algo Quest</string>
+    <!-- Onboarding -->
+    <!-- Onboarding Screens -->
+    <string name="onboarding_title_1">Master Data Structures &amp; Algorithms</string>
+    <string name="onboarding_desc_1">Practice 500+ curated DSA problems—from basics to advanced interviews.</string>
+
+    <string name="onboarding_title_2">Smart Learning Path</string>
+    <string name="onboarding_desc_2">Unlock problems in the right order. Build strong foundations before tackling hard challenges.</string>
+
+    <string name="onboarding_title_3">Track &amp; Conquer</string>
+    <string name="onboarding_desc_3">Earn points, track progress, and crush your coding interview prep—one problem at a time.</string>
 </resources>

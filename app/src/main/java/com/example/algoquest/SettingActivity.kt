@@ -15,7 +15,13 @@ class SettingsActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         ThemeManager.applyTheme(this)
         setContent {
-            var darkTheme by remember { mutableStateOf(false) }
+            val isDarkTheme = ThemeManager.getDarkMode(this@SettingsActivity)
+            var darkTheme by remember { mutableStateOf(isDarkTheme) }
+
+            // Save theme when it changes
+            LaunchedEffect(darkTheme) {
+                ThemeManager.setDarkMode(this@SettingsActivity, darkTheme)
+            }
 
             MaterialTheme(
                 colorScheme = if (darkTheme) darkColorScheme() else lightColorScheme()
