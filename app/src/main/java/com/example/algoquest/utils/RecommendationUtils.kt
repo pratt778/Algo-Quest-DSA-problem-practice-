@@ -4,7 +4,7 @@ import com.example.algoquest.model.Problem
 
 object RecommendationUtils {
 
-    fun recommendUsingDijkstra(current: Problem, allProblems: List<Problem>, topN: Int = 3): List<Problem> {
+    fun recommendUsingDijkstra(current: Problem, allProblems: List<Problem>, topN: Int = 10): List<Problem> {
         val graph = buildGraph(allProblems)
         val distances = dijkstra(current.id, graph)
         return distances

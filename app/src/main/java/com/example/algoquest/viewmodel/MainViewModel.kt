@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData
 import com.example.algoquest.js.JsExecutor
 import com.example.algoquest.model.Problem
 import com.example.algoquest.repository.ProblemRepository
+import com.example.algoquest.storage.FirestoreManager
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -27,6 +28,27 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun loadProblems(jsonFile: String = "problems.json") {
         _problems.value = repository.loadProblemsFromAssets(jsonFile)
+    }
+
+    private val _points = MutableLiveData<Long>(0L)
+    val points: LiveData<Long> = _points
+
+    fun observeUserPoints(userId: String) {
+        FirestoreManager.observeUserData(userId).observeForever { data ->
+            val pts = data?.get("points") as? Long ?: 0L
+            _points.postValue(pts)
+        }
+    }
+
+    private val _recentlyShown = MutableLiveData<Set<String>>(emptySet())
+    val recentlyShown: LiveData<Set<String>> = _recentlyShown
+
+    fun updateRecentlyShown(newIds: Set<String>) {
+        _recentlyShown.value = newIds
+    }
+
+    fun clearRecentlyShown() {
+        _recentlyShown.value = emptySet()
     }
 
     override fun onCleared() {

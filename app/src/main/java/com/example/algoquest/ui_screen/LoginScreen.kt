@@ -1,23 +1,23 @@
-package com.example.algoquest
+package com.example.algoquest.ui.screen
 
 import android.content.Intent
-import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,44 +27,32 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.algoquest.Auth.AuthManager
-import com.example.algoquest.viewmodel.SignUpViewModel
-
-class SignUpActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            MaterialTheme {
-                SignUpScreen(
-                    onNavigateToLogin = {
-                        startActivity(Intent(this, LoginActivity::class.java))
-                    },
-                    onNavigateToMain = {
-                        startActivity(Intent(this, MainActivity::class.java))
-                        finish()
-                    }
-                )
-            }
-        }
-    }
-}
+import com.example.algoquest.MainActivity
+import com.example.algoquest.R
+import com.example.algoquest.SignUpActivity
 
 @Composable
-fun SignUpScreen(
-    viewModel: SignUpViewModel = viewModel(),
-    onNavigateToLogin: () -> Unit = {},
-    onNavigateToMain: () -> Unit = {}
+fun LoginScreen(
+    onNavigateToMainActivity: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
     var isGoogleLoading by remember { mutableStateOf(false) }
 
-    // Initialize Google Sign-In
+    // Initialize Google Sign-In (Replace with your actual Web Client ID from Firebase Console)
     LaunchedEffect(Unit) {
         AuthManager.initializeGoogleSignIn(context, "418910417631-77f2efc8bghsh2p3lp1m9tj5ss9vfmd0.apps.googleusercontent.com")
     }
@@ -78,7 +66,7 @@ fun SignUpScreen(
                 isGoogleLoading = false
                 if (success) {
                     Toast.makeText(context, "Google Sign-In successful", Toast.LENGTH_SHORT).show()
-                    onNavigateToMain()
+                    onNavigateToMainActivity()
                 } else {
                     Toast.makeText(context, "Google Sign-In failed: $errorMessage", Toast.LENGTH_LONG).show()
                 }
@@ -89,23 +77,15 @@ fun SignUpScreen(
         }
     }
 
-    // Handle toast messages
-    LaunchedEffect(viewModel.showToast) {
-        if (viewModel.showToast.isNotEmpty()) {
-            Toast.makeText(context, viewModel.showToast, Toast.LENGTH_SHORT).show()
-            viewModel.onToastShown()
-        }
-    }
-
-    // Handle navigation
-    LaunchedEffect(viewModel.navigateToMain) {
-        if (viewModel.navigateToMain) {
-            onNavigateToMain()
+    // Auto-redirect if already logged in
+    LaunchedEffect(Unit) {
+        if (AuthManager.currentUser() != null) {
+            onNavigateToMainActivity()
         }
     }
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(
                 Brush.verticalGradient(
@@ -122,13 +102,13 @@ fun SignUpScreen(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(24.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            // Logo/Icon Circle
+            // Logo/Icon Circle with Animation
             Box(
                 modifier = Modifier
-                    .size(100.dp)
+                    .size(120.dp)
                     .clip(CircleShape)
                     .background(
                         Brush.linearGradient(
@@ -138,45 +118,45 @@ fun SignUpScreen(
                             )
                         )
                     )
-                    .padding(4.dp),
+                    .padding(6.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Box(
                     modifier = Modifier
-                        .size(92.dp)
+                        .size(108.dp)
                         .clip(CircleShape)
                         .background(Color.White),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = "Profile",
-                        modifier = Modifier.size(48.dp),
+                        imageVector = Icons.Default.Lock,
+                        contentDescription = "Login",
+                        modifier = Modifier.size(56.dp),
                         tint = Color(0xFF667EEA)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             // Title
             Text(
-                text = "Create Account",
-                fontSize = 32.sp,
+                text = "Welcome Back",
+                fontSize = 36.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
                 textAlign = TextAlign.Center
             )
 
             Text(
-                text = "Sign up to get started",
+                text = "Login to continue your journey",
                 fontSize = 16.sp,
                 color = Color.White.copy(alpha = 0.9f),
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 8.dp)
             )
 
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(48.dp))
 
             // Main Card
             Card(
@@ -191,13 +171,13 @@ fun SignUpScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(28.dp),
+                        .padding(32.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Email input
+                    // Email Input
                     OutlinedTextField(
-                        value = viewModel.email,
-                        onValueChange = { viewModel.updateEmail(it) },
+                        value = email,
+                        onValueChange = { email = it.trim() },
                         label = { Text("Email Address") },
                         placeholder = { Text("Enter your email") },
                         leadingIcon = {
@@ -207,11 +187,9 @@ fun SignUpScreen(
                                 tint = Color(0xFF667EEA)
                             )
                         },
-                        singleLine = true,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 16.dp),
-                        enabled = !isGoogleLoading,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !isLoading && !isGoogleLoading,
                         shape = RoundedCornerShape(16.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Color(0xFF667EEA),
@@ -221,12 +199,15 @@ fun SignUpScreen(
                         )
                     )
 
-                    // Password input
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    // Password Input
+                    var passwordVisible by remember { mutableStateOf(false) }
                     OutlinedTextField(
-                        value = viewModel.password,
-                        onValueChange = { viewModel.updatePassword(it) },
+                        value = password,
+                        onValueChange = { password = it },
                         label = { Text("Password") },
-                        placeholder = { Text("Enter password") },
+                        placeholder = { Text("Enter your password") },
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.Lock,
@@ -234,40 +215,19 @@ fun SignUpScreen(
                                 tint = Color(0xFF667EEA)
                             )
                         },
-                        visualTransformation = PasswordVisualTransformation(),
-                        singleLine = true,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 16.dp),
-                        enabled = !isGoogleLoading,
-                        shape = RoundedCornerShape(16.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color(0xFF667EEA),
-                            unfocusedBorderColor = Color(0xFFE0E0E0),
-                            focusedLabelColor = Color(0xFF667EEA),
-                            cursorColor = Color(0xFF667EEA)
-                        )
-                    )
-
-                    // Confirm Password input
-                    OutlinedTextField(
-                        value = viewModel.confirmPassword,
-                        onValueChange = { viewModel.updateConfirmPassword(it) },
-                        label = { Text("Confirm Password") },
-                        placeholder = { Text("Re-enter password") },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Lock,
-                                contentDescription = "Confirm Password",
-                                tint = Color(0xFF667EEA)
-                            )
+                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        trailingIcon = {
+                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                Icon(
+                                    imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                    contentDescription = if (passwordVisible) "Hide password" else "Show password",
+                                    tint = Color(0xFF667EEA)
+                                )
+                            }
                         },
-                        visualTransformation = PasswordVisualTransformation(),
-                        singleLine = true,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 24.dp),
-                        enabled = !isGoogleLoading,
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !isLoading && !isGoogleLoading,
                         shape = RoundedCornerShape(16.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Color(0xFF667EEA),
@@ -277,14 +237,32 @@ fun SignUpScreen(
                         )
                     )
 
-                    // Sign Up Button with Gradient
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    // Login Button with Gradient
                     Button(
-                        onClick = { viewModel.onSignUpClick() },
+                        onClick = {
+                            if (email.isBlank() || password.isBlank()) {
+                                Toast.makeText(context, "Please enter email and password", Toast.LENGTH_SHORT).show()
+                                return@Button
+                            }
+
+                            isLoading = true
+                            AuthManager.signIn(email, password) { success, errorMessage ->
+                                isLoading = false
+                                if (success) {
+                                    Toast.makeText(context, "Login successful", Toast.LENGTH_SHORT).show()
+                                    onNavigateToMainActivity()
+                                } else {
+                                    Toast.makeText(context, "Login failed: $errorMessage", Toast.LENGTH_LONG).show()
+                                }
+                            }
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp)
                             .shadow(8.dp, RoundedCornerShape(16.dp)),
-                        enabled = !isGoogleLoading,
+                        enabled = !isLoading && !isGoogleLoading,
                         shape = RoundedCornerShape(16.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color(0xFF667EEA),
@@ -296,7 +274,7 @@ fun SignUpScreen(
                             modifier = Modifier
                                 .fillMaxSize(),
 //                                .background(
-//                                    if (isGoogleLoading) Color(0xFFE0E0E0)
+//                                    if (isLoading || isGoogleLoading) Color(0xFFE0E0E0)
 //                                    else Brush.horizontalGradient(
 //                                        colors = listOf(
 //                                            Color(0xFF667EEA),
@@ -306,12 +284,20 @@ fun SignUpScreen(
 //                                ),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(
-                                "Create Account",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp,
-                                color = Color.White
-                            )
+                            if (isLoading) {
+                                CircularProgressIndicator(
+                                    color = Color.White,
+                                    strokeWidth = 2.dp,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            } else {
+                                Text(
+                                    "Login",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 16.sp,
+                                    color = Color.White
+                                )
+                            }
                         }
                     }
 
@@ -361,7 +347,7 @@ fun SignUpScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp),
-                        enabled = !isGoogleLoading,
+                        enabled = !isLoading && !isGoogleLoading,
                         shape = RoundedCornerShape(16.dp),
                         border = BorderStroke(1.5.dp, Color(0xFFE0E0E0)),
                         colors = ButtonDefaults.outlinedButtonColors(
@@ -380,7 +366,7 @@ fun SignUpScreen(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.Center
                             ) {
-                                // Google Icon (using a colored box as placeholder)
+                                // Google Icon (colorful gradient circle)
                                 Box(
                                     modifier = Modifier
                                         .size(24.dp)
@@ -398,7 +384,7 @@ fun SignUpScreen(
                                 )
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Text(
-                                    "Sign up with Google",
+                                    "Sign in with Google",
                                     fontWeight = FontWeight.Medium,
                                     fontSize = 15.sp
                                 )
@@ -410,22 +396,24 @@ fun SignUpScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Login Link with style
+            // Sign Up Link
             Row(
                 modifier = Modifier.padding(top = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Already have an account?",
+                    text = "Don't have an account?",
                     color = Color.White.copy(alpha = 0.9f),
                     fontSize = 15.sp
                 )
                 TextButton(
-                    onClick = onNavigateToLogin,
-                    enabled = !isGoogleLoading
+                    onClick = {
+                        context.startActivity(Intent(context, SignUpActivity::class.java))
+                    },
+                    enabled = !isLoading && !isGoogleLoading
                 ) {
                     Text(
-                        "Login",
+                        "Sign Up",
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp
